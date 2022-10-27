@@ -3,23 +3,20 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
 import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
-      typePaths: ['./**/*.graphql'],
       driver: ApolloDriver,
-      debug: false,
-      playground: false,
+      playground: true,
       //include: [Modulo específico p/ limitar a busca por endpoints],
-      autoSchemaFile: 'schema.gql', //true
+      autoSchemaFile: true,
       //sortSchema: true, | p/ ordenar schema por ordem alfabética
-      plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
+    UsersModule,
   ],
   controllers: [AppController],
-  providers: [AppService, UsersModule],
+  providers: [AppService],
 })
 export class AppModule {}

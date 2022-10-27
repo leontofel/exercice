@@ -23,26 +23,27 @@ class LoginResponse {
   accessToken: string;
 }
 
-@Resolver((of) => User)
-export class UsersResolver {
+@Resolver(() => User)
+export class _usersResolver {
   constructor(private usersService: UsersService) {}
+
   @Query(() => String)
   sayHello(): string {
     return 'Hello World!';
   }
 
-  @Query((returns) => User)
+  @Query(() => User)
   async findUser(@Args('user_id', { type: () => Int }) user_id: number) {
     return this.usersService.findOneById(user_id);
   }
 
-  @Query((returns) => User)
+  @Query(() => User)
   async findUserByEmail(@Args('email', { type: () => String }) email: string) {
     return this.usersService.findOneByEmail(email);
   }
 
   // return JWT
-  @Query((login) => String)
+  @Query(() => String)
   async token(@Args('user_id', { type: () => Int }) user_id: number) {
     const token = await this.findUser(user_id).then((res: User) => {
       const token = jwt.sign({ ...res }, process.env.PRIVATEKEY || 'secret');
@@ -52,7 +53,7 @@ export class UsersResolver {
   }
 
   // Returns the logged user info
-  @Query((login) => String)
+  @Query(() => String)
   async getUserInfo(@Args('user_id', { type: () => Int }) user_id: number) {
     return this.usersService.findOneById(user_id);
   }
@@ -64,7 +65,7 @@ export class UsersResolver {
   }
 
   // Creates new user
-  @Mutation((returns) => User)
+  @Mutation(() => User)
   async addUser(@Args('newUserData') newUserData: NewUserInput): Promise<User> {
     const user = await this.usersService.create(newUserData);
     pubSub.publish('userAdded', { userAdded: user });
@@ -131,7 +132,7 @@ export class UsersResolver {
   }
 
   // Updates user
-  @Mutation((returns) => User)
+  @Mutation(() => User)
   async updateUser(@Args('newUserData') newUserData: NewUserInput) {
     const user = await this.usersService.create(newUserData);
     pubSub.publish('userAdded', { userAdded: user });
