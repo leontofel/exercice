@@ -3,28 +3,30 @@ import { Link } from 'react-router-dom';
 import { useForm } from "react-hook-form";
 import axios from 'axios';
 
+
 type LoginData = {
     email: string;
     password: string;
 };
 
 export default function LoginDisplay() {
-
-
-
+    //React Hook Forms
     const { register, setValue, handleSubmit, formState: { errors } } = useForm<LoginData>();
-    const onSubmit = handleSubmit(data => console.log(data));
+    const onSubmit = handleSubmit(data => handleLogin(data));
 
-    function handleLogin() {
+    function handleLogin({ email, password }: LoginData) {
 
         axios.post('http://localhost:3006', {})
             .then()
             .catch(err => console.error(err));
     }
 
+
     return (
         <>
-            <Container display="flex" >
+
+            <Container display="flex"  >
+
                 <Container display="flex" flexDirection="column" alignItems="space-between" justifyContent="center" marginTop="8rem">
                     <Heading>Sign-in</Heading>
                     <form onSubmit={onSubmit}>
