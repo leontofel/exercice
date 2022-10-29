@@ -16,6 +16,6 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src", "ggl"],
+  "include": ["src", "ggl", "hooks", "codegen.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -1,41 +1,51 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UserDto } from './dto/user.dto';
 import { PrismaService } from '../core/prisma/prisma.service';
 import { CreateUserDto } from './dto/create.dto';
-import { GraphQLError } from 'graphql/error';
+import { UsersService } from './users.service';
+import { User } from './models/user.model';
+import { NewUserInput } from './dto/new-user.input';
+import { updateInput } from './dto/update.input';
+import { TokenDto } from './dto/token.dto';
 
-@Resolver()
+@Resolver(() => User)
 export class UserResolver {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Query(() => UserDto)
-  getUser() {
-    return {
-      id: 'user1',
-      name: 'leo',
-    };
+  async getUserById(@Args('id', { type: () => Int }) id: number) {
+    return await this.usersService.findOneById(id);
+  }
+
+  @Query(() => String)
+  async login(
+    @Args('email') email: string,
+    @Args('password') password: string,
+  ) {
+    return await this.usersService.login(email, password);
+  }
+
+  @Query(() => UserDto)
+  async getLoggedUserInfo(
+    @Args('tokenForInfo', { type: () => String }) tokenForInfo: string,
+  ) {
+    return await this.getLoggedUserInfo(tokenForInfo);
+  }
+
+  @Mutation(() => String) // string
+  async createUser(
+    @Args('NewUserInput', { type: () => NewUserInput }) dto: CreateUserDto,
+  ) {
+    return this.usersService.createUser(dto);
   }
 
   @Mutation(() => UserDto)
-  async createUser(
-    @Args('dto', { type: () => CreateUserDto }) dto: CreateUserDto,
+  async updateUser(
+    @Args('updateInput', { type: () => updateInput }) dto: UserDto,
   ) {
-    let user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-    });
-
-    if (user) {
-      throw new GraphQLError(`There's already an user with this email`);
-    }
-
-    user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        name: dto.name,
-        password: dto.password, // hash password
-      },
-    });
-
-    return user;
+    return this.usersService.updateUser(dto);
   }
 }
