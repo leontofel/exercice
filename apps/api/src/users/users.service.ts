@@ -3,7 +3,7 @@ import { User } from './models/user.model';
 import { PrismaService } from '../core/prisma/prisma.service';
 import { CreateUserDto } from './dto/create.dto';
 import { UserDto } from './dto/user.dto';
-import { GraphQLError } from 'graphql';
+import { GraphQLError, Token } from 'graphql';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { updateInput } from './dto/update.input';
@@ -11,6 +11,29 @@ import { updateInput } from './dto/update.input';
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async validateUser(email: string, password: string): Promise<any> {
+    const user = await this.prisma.user.findUnique({
+      where: { email: email },
+    });
+  }
+
+  async login(email: string, password: string): Promise<string> {
+    //if(!email || !password)
+    const user = this._findOneByEmail(email);
+    const validLogin = await bcrypt.compare(password, (await user).password);
+
+    if (!user || !validLogin) {
+      throw new GraphQLError(`Incorrect login, please try again or register`);
+    }
+
+    const token = jwt.sign(
+      { email: email, id: (await user).id },
+      process.env.PRIVATEKEY || 'secret',
+      { expiresIn: '6h' },
+    );
+    return token;
+  }
 
   async createUser(dto: CreateUserDto): Promise<string> {
     let newUser = await this.prisma.user.findUnique({
@@ -36,8 +59,10 @@ export class UsersService {
       },
     });
 
+    const { id } = await this._findOneByEmail(dto.email);
+
     const registerToken = jwt.sign(
-      { email: dto.email },
+      { email: dto.email, id: id },
       process.env.PRIVATEKEY || 'secret',
       { expiresIn: '6h' },
     );
@@ -58,30 +83,7 @@ export class UsersService {
     return userOfEmail;
   }
 
-  async login(email: string, password: string): Promise<UserDto> {
-    //if(!email || !password)
-    const user = this._findOneByEmail(email);
-    const validLogin = await bcrypt.compare(password, (await user).password);
-
-    if (!user || !validLogin) {
-      throw new GraphQLError(`Incorrect login, please try again or register`);
-    }
-
-    const token = jwt.sign(
-      { email: email },
-      process.env.PRIVATEKEY || 'secret',
-      { expiresIn: '6h' },
-    );
-    return user;
-  }
-
-  async getLoggedUserInfo(token: string): Promise<UserDto> {
-    const tokenIsValid = jwt.verify(token, process.env.PRIVATEKEY || 'secret');
-    if (!tokenIsValid) {
-      throw new GraphQLError(`The access token is invalid, please login`);
-    }
-    const payload = jwt.decode(token);
-    const email = payload['email'];
+  async getLoggedUserInfo(email: string): Promise<UserDto> {
     const userInfo = await this._findOneByEmail(email);
     return userInfo;
   }

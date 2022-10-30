@@ -1,45 +1,54 @@
 import { Input, Container, Heading, Button, Text, Spinner } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form";
 //import { useLogin } from '../../hooks/useLogin';
 import { useEffect, useState } from 'react';
 import { ApolloError, useQuery, gql } from '@apollo/client';
 import { token } from '../../state/atom';
+import { LOGIN } from '../../GraphQL/Queries';
+import { Query } from '../../hooks/graphql';
+import { useRecoilState, useRecoilValue } from 'recoil';
 
 
-type LoginData = {
+
+
+export type LoginData = {
     email: string;
     password: string;
 };
 
+
 export default function LoginDisplay() {
+    //state
+    const [newToken, setNewToken] = useRecoilState(token);
+    
+    const navigate = useNavigate();
+    let incorrectLogin = false;
     //React Hook Forms
     const { register, setValue, handleSubmit, formState: { errors } } = useForm<LoginData>();
-    const onSubmit = handleSubmit(data => setLogData(data));
+    const onSubmit = handleSubmit(res => {
+        setLogData(res);
+        if(data !== undefined) setNewToken(data["login"]);
+        navigate('/dashboard');  
+            
+        
+    });
 
-    const [logData, setLogData] = useState<LoginData>()
+    const [logData, setLogData] = useState<LoginData>();
 
     useEffect(() => {
-
+        console.log(error?.cause, error?.message);
         
     }, [logData])
-
     
     
-        const LOGIN = gql`
-        query {
-        login(
-        email: ${logData?.email}
-        password: ${logData?.password}
-        ){
-            token
-        }}
-`;
+    const { error, loading, data } = useQuery<Query>(LOGIN, {variables: {
+    "email": logData?.email,
+    "password": logData?.password
+}}); 
 
-    const { error, loading, data } = useQuery<string>(LOGIN)
-
-
-
+    //if(error) return <Text>{error.message}</Text>;
+    if(loading) return <Spinner thickness='4px' speed='0.65s' emptyColor='gray.200' color='blue.500' size='xl' margin="0 auto"/>;
 
     return (
         <>
@@ -80,15 +89,7 @@ export default function LoginDisplay() {
                             Sign In
                         </Button>
                     </form>
-                    {loading && <Spinner
-                    thickness='4px'
-                    speed='0.65s'
-                    emptyColor='gray.200'
-                    color='blue.500'
-                    size='xl'
-                    margin="0 auto"
-                />}
-                {error && <Text>{error.message}</Text>}
+                    {incorrectLogin && <Text color="red"><b>Senha ou email incorretos</b></Text>}
                     <Text textAlign="center" margin=".5rem" >don't have an account yet?</Text>
                     <Button margin=".5rem" colorScheme='gray' as={Link} to="/register">Create an account</Button>
                 </Container>
@@ -97,6 +98,3 @@ export default function LoginDisplay() {
     );
 }
 
-function useRecoilState(token: any): [any, any] {
-    throw new Error('Function not implemented.');
-}

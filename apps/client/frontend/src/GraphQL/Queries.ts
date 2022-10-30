@@ -2,9 +2,9 @@ import { gql } from '@apollo/client';
 
 
 export const GET_USER = gql(`
-query UserInfo($token: String!){
-    getLoggedUserInfo(
-        token: $token
+query UserInfo($id: Int!){
+    getUserById(
+        id: $id
         ){
         name,
         city,
@@ -15,3 +15,12 @@ query UserInfo($token: String!){
       }
   }
 `)
+
+export  const LOGIN = gql(`
+query($email: String!, $password: String!) {
+  login(
+  email: $email,
+  password: $password
+)}
+`);
+

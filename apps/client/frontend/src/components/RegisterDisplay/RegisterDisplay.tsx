@@ -20,7 +20,7 @@ type FormData = {
 export default function RegisterDisplay() {
     const [user, setUser] = useState<FormData>()
     const { register, setValue, handleSubmit, formState: { errors } } = useForm<FormData>();
-    const onSubmit = handleSubmit(data => console.log(data));
+    const onSubmit = handleSubmit(data => handleRegister(data));
 
 
     function handleRegister(user: FormData) {
@@ -40,6 +40,7 @@ export default function RegisterDisplay() {
                 "birthday": birthday 
             }
         })
+        alert("usuário criado com sucesso")
         console.log(data)
 
     }

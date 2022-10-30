@@ -7,6 +7,7 @@ import { User } from './models/user.model';
 import { NewUserInput } from './dto/new-user.input';
 import { updateInput } from './dto/update.input';
 import { TokenDto } from './dto/token.dto';
+import { Token } from 'graphql';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -30,9 +31,9 @@ export class UserResolver {
 
   @Query(() => UserDto)
   async getLoggedUserInfo(
-    @Args('tokenForInfo', { type: () => String }) tokenForInfo: string,
+    @Args('emailForInfo', { type: () => String }) emailForInfo: string,
   ) {
-    return await this.getLoggedUserInfo(tokenForInfo);
+    return await this.getLoggedUserInfo(emailForInfo);
   }
 
   @Mutation(() => String) // string
