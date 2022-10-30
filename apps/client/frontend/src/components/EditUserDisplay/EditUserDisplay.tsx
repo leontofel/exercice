@@ -26,10 +26,10 @@ export default function EditUserDisplay() {
     }, [navigate, token, tokenIsValid]);
     */
 
-    //get id
+    //get id from token
+    // const id = useTokenId;
     const id = 1;
-    
-    
+
 
     //React Hook Forms
     const { register, setValue, handleSubmit, formState: { errors } } = useForm<IUser>();
@@ -49,33 +49,35 @@ export default function EditUserDisplay() {
         })
     }
 
-    const { error, loading, data } = useQuery(GET_USER, { variables: {
-        "id": id
-    }});
+    const { error, loading, data } = useQuery(GET_USER, {
+        variables: {
+            "id": id
+        }
+    });
 
     return (
         <>
             <Container minHeight="100vh" display="flex" flexDirection="column" alignItems="space-between" justifyContent="center" marginTop="8rem">
-                <Heading>Hello, { data?.name !== undefined ? data?.name : " " }</Heading>
+                <Heading>Hello, {data?.name !== undefined ? data?.name : " "}</Heading>
                 <Text>Edit your profile</Text>
                 <UnorderedList>
                     <form onSubmit={onSubmit}>
-                        <ListItem>Name: { data?.name !== undefined ? data?.name : " " }</ListItem>
+                        <ListItem>Name: {data?.name !== undefined ? data?.name : " "}</ListItem>
                         <Input marginBottom="1rem" {...register("name")} />
                         <br />
-                        <ListItem>City: { data?.city !== undefined ? data?.city : " " }</ListItem>
+                        <ListItem>City: {data?.city !== undefined ? data?.city : " "}</ListItem>
                         <Input marginBottom="1rem" {...register("city")} />
                         <br />
-                        <ListItem>Pet: { data?.pet !== undefined ? data?.pet : " " }</ListItem>
+                        <ListItem>Pet: {data?.pet !== undefined ? data?.pet : " "}</ListItem>
                         <Input marginBottom="1rem" {...register("pet")} />
                         <br />
-                        <ListItem>Tech-Stack: { data?.tech_stack !== undefined ? data?.tech_stack : " " }</ListItem>
+                        <ListItem>Tech-Stack: {data?.tech_stack !== undefined ? data?.tech_stack : " "}</ListItem>
                         <Input marginBottom="1rem" {...register("tech_stack")} />
                         <br />
                         <ListItem>Married: </ListItem>
                         <input type="checkbox" {...register("married")} />
                         <br />
-                        <ListItem marginTop=".5rem" >Birthday: { data?.birthday !== undefined ? data?.birthday.toString() : " "}</ListItem>
+                        <ListItem marginTop=".5rem" >Birthday: {data?.birthday !== undefined ? data?.birthday.toString() : " "}</ListItem>
                         <Input marginBottom="1rem" type="date" {...register("birthday")} />
                         <br />
                         <Button type="submit" margin=".5rem" colorScheme='green'>Save changes</Button>

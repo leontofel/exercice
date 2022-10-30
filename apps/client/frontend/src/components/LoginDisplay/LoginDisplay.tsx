@@ -21,34 +21,34 @@ export type LoginData = {
 export default function LoginDisplay() {
     //state
     const [newToken, setNewToken] = useRecoilState(token);
-    
+
+    const [logData, setLogData] = useState<LoginData>();
     const navigate = useNavigate();
     let incorrectLogin = false;
+    
+    const { error, loading, data } = useQuery<Query>(LOGIN, {
+        variables: {
+            "email": logData?.email,
+            "password": logData?.password
+        }
+    });
+
     //React Hook Forms
     const { register, setValue, handleSubmit, formState: { errors } } = useForm<LoginData>();
     const onSubmit = handleSubmit(res => {
         setLogData(res);
-        if(data !== undefined) setNewToken(data["login"]);
-        navigate('/dashboard');  
-            
-        
+        if (data !== undefined) setNewToken(data["login"]);
+        navigate('/dashboard');
+
     });
 
-    const [logData, setLogData] = useState<LoginData>();
-
     useEffect(() => {
-        console.log(error?.cause, error?.message);
-        
+
     }, [logData])
-    
-    
-    const { error, loading, data } = useQuery<Query>(LOGIN, {variables: {
-    "email": logData?.email,
-    "password": logData?.password
-}}); 
+
 
     //if(error) return <Text>{error.message}</Text>;
-    if(loading) return <Spinner thickness='4px' speed='0.65s' emptyColor='gray.200' color='blue.500' size='xl' margin="0 auto"/>;
+    if (loading) return <Spinner thickness='4px' speed='0.65s' emptyColor='gray.200' color='blue.500' size='xl' margin="0 auto" />;
 
     return (
         <>
@@ -83,7 +83,7 @@ export default function LoginDisplay() {
                         <br />
                         <Button
                             margin=".5rem 10rem"
-                            
+
                             colorScheme='purple'
                             type="submit">
                             Sign In
